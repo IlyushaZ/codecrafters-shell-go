@@ -25,6 +25,9 @@ func run(out io.Writer, cmd string, args ...string) {
 
 		os.Exit(code)
 
+	case "echo":
+		fmt.Fprintf(out, "%s\n", strings.Join(args, " "))
+
 	default:
 		fmt.Fprintf(out, "%s: command not found\n", cmd)
 	}
