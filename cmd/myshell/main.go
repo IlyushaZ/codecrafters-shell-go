@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
 	"strconv"
 	"strings"
@@ -53,8 +54,17 @@ func run(out io.Writer, cmd string, args ...string) {
 			fmt.Fprintf(out, "%s not found\n", a)
 		}
 
+	case "":
+		return
+
 	default:
-		fmt.Fprintf(out, "%s: command not found\n", cmd)
+		command := exec.Command(cmd, args...)
+		command.Stdout = os.Stdout
+		command.Stderr = os.Stderr
+
+		if err := command.Run(); err != nil {
+			fmt.Fprintf(out, "%s: command not found\n", command)
+		}
 	}
 }
 
