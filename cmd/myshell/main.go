@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+var builtins = map[string]bool{
+	"exit": true,
+	"echo": true,
+	"type": true,
+}
+
 func run(out io.Writer, cmd string, args ...string) {
 	switch cmd {
 	case "exit":
@@ -27,6 +33,15 @@ func run(out io.Writer, cmd string, args ...string) {
 
 	case "echo":
 		fmt.Fprintf(out, "%s\n", strings.Join(args, " "))
+
+	case "type":
+		for _, a := range args {
+			if builtins[a] {
+				fmt.Fprintf(out, "%s is a shell builtin\n", a)
+			} else {
+				fmt.Fprintf(out, "%s not found\n", a)
+			}
+		}
 
 	default:
 		fmt.Fprintf(out, "%s: command not found\n", cmd)
