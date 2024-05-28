@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
+
+var pathEntries []string
 
 var builtins = map[string]bool{
 	"exit": true,
@@ -38,9 +41,16 @@ func run(out io.Writer, cmd string, args ...string) {
 		for _, a := range args {
 			if builtins[a] {
 				fmt.Fprintf(out, "%s is a shell builtin\n", a)
-			} else {
-				fmt.Fprintf(out, "%s not found\n", a)
+				continue
 			}
+
+			fullPath, ok := lookupBinary(a)
+			if ok {
+				fmt.Fprintf(out, "%s is %s\n", a, fullPath)
+				continue
+			}
+
+			fmt.Fprintf(out, "%s not found\n", a)
 		}
 
 	default:
@@ -48,9 +58,22 @@ func run(out io.Writer, cmd string, args ...string) {
 	}
 }
 
+func lookupBinary(name string) (fullPath string, ok bool) {
+	for _, p := range pathEntries {
+		fp := path.Join(p, name)
+
+		_, err := os.Stat(fp)
+		if err == nil {
+			return fp, true
+		}
+	}
+
+	return
+}
+
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
-	// fmt.Println("Logs from your program will appear here!")
+	path := os.Getenv("PATH")
+	pathEntries = strings.Split(path, ":")
 
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
