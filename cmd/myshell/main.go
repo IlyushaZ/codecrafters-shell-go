@@ -3,9 +3,32 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
+	"strconv"
 	"strings"
 )
+
+func run(out io.Writer, cmd string, args ...string) {
+	switch cmd {
+	case "exit":
+		var (
+			code int
+			err  error
+		)
+		if len(args) > 0 {
+			code, err = strconv.Atoi(args[0])
+			if err != nil {
+				panic(fmt.Sprintf("exit: invalid code argument: %s", args[0]))
+			}
+		}
+
+		os.Exit(code)
+
+	default:
+		fmt.Fprintf(out, "%s: command not found\n", cmd)
+	}
+}
 
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -27,6 +50,6 @@ func main() {
 			panic(fmt.Sprintf("invalid input len: %d", len(split)))
 		}
 
-		fmt.Fprintf(os.Stdout, "%s: command not found\n", split[0])
+		run(os.Stdout, split[0], split[1:]...)
 	}
 }
