@@ -36,7 +36,7 @@ func run(out io.Writer, cmd string, args ...string) {
 		os.Exit(code)
 
 	case "echo":
-		fmt.Fprintf(out, "%s\n", strings.Join(args, " "))
+		fmt.Fprintln(out, strings.Join(args, " "))
 
 	case "type":
 		for _, a := range args {
@@ -53,6 +53,14 @@ func run(out io.Writer, cmd string, args ...string) {
 
 			fmt.Fprintf(out, "%s not found\n", a)
 		}
+
+	case "pwd":
+		wd, err := os.Getwd()
+		if err != nil {
+			panic(fmt.Sprintf("can't get current working directory: %v", err))
+		}
+
+		fmt.Fprintln(out, wd)
 
 	case "":
 		return
