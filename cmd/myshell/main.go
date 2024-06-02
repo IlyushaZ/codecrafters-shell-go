@@ -67,9 +67,20 @@ func run(out io.Writer, cmd string, args ...string) {
 			panic(fmt.Sprintf("expected 1 argument, got %d", len(args)))
 		}
 
-		if err := os.Chdir(args[0]); err != nil {
+		dir := args[0]
+
+		if strings.HasPrefix(dir, "~") {
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				panic(fmt.Sprintf("can't get user's home dir: %v", err))
+			}
+
+			dir = strings.Replace(dir, "~", homeDir, 1)
+		}
+
+		if err := os.Chdir(dir); err != nil {
 			if os.IsNotExist(err) {
-				fmt.Fprintf(out, "%s: No such file or directory\n", args[0])
+				fmt.Fprintf(out, "%s: No such file or directory\n", args[0]) // print actual user's input
 				return
 			}
 
