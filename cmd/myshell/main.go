@@ -62,6 +62,20 @@ func run(out io.Writer, cmd string, args ...string) {
 
 		fmt.Fprintln(out, wd)
 
+	case "cd":
+		if len(args) != 1 {
+			panic(fmt.Sprintf("expected 1 argument, got %d", len(args)))
+		}
+
+		if err := os.Chdir(args[0]); err != nil {
+			if os.IsNotExist(err) {
+				fmt.Fprintf(out, "%s: No such file or directory\n", args[0])
+				return
+			}
+
+			panic(fmt.Sprintf("can't change directory: %v", err))
+		}
+
 	case "":
 		return
 
